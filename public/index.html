@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <title>EasyRanked — Foundry</title>
+  <meta name="description" content="FPS competitif navigateur : WebGL2, modelisation 3D procedurale, multijoueur temps reel.">
+  <link rel="stylesheet" href="./css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%2311161c'/><circle cx='16' cy='16' r='7' fill='none' stroke='%23e8eef4' stroke-width='2'/><rect x='15' y='2' width='2' height='7' fill='%23e8eef4'/><rect x='15' y='23' width='2' height='7' fill='%23e8eef4'/><rect x='2' y='15' width='7' height='2' fill='%23e8eef4'/><rect x='23' y='15' width='7' height='2' fill='%23e8eef4'/></svg>">
+  <script type="importmap">
+    { "imports": { "three": "./vendor/three.module.js" } }
+  </script>
+</head>
+<body>
+  <!-- Toile de rendu principale (monde + arme en 1ere personne) -->
+  <canvas id="game" aria-label="Rendu du jeu"></canvas>
+
+  <!-- Interface de combat (injectee par hud.js) -->
+  <div id="hudRoot"></div>
+
+  <!-- Lobby / armurerie (injectes par lobby.js) -->
+  <div id="lobbyRoot"></div>
+
+  <!-- Menu de pause -->
+  <div id="pauseMenu" class="overlay" data-on="0">
+    <div class="pause-card">
+      <h2>Pause</h2>
+      <div class="pause-controls">
+        <h3>Commandes</h3>
+        <ul>
+          <li><b>Z Q S D</b><span>Se deplacer</span></li>
+          <li><b>Espace</b><span>Sauter</span></li>
+          <li><b>Maj</b><span>Sprinter</span></li>
+          <li><b>C / Ctrl</b><span>S'accroupir</span></li>
+          <li><b>Maj + C</b><span>Glissade (en course)</span></li>
+          <li><b>Clic gauche</b><span>Tirer</span></li>
+          <li><b>Clic droit</b><span>Viser</span></li>
+          <li><b>R</b><span>Recharger</span></li>
+          <li><b>G</b><span>Grenade</span></li>
+          <li><b>I</b><span>Inspecter l'arme</span></li>
+          <li><b>Tab</b><span>Tableau des scores</span></li>
+          <li><b>F3</b><span>Compteurs de performance</span></li>
+          <li><b>Echap</b><span>Pause</span></li>
+        </ul>
+      </div>
+      <label class="pause-sens">Sensibilite de la souris
+        <input type="range" id="sensRange" min="0.2" max="3" step="0.05" value="1">
+        <b id="sensValue">1</b>
+      </label>
+      <div class="pause-actions">
+        <button class="btn btn-primary" id="resumeBtn">Reprendre</button>
+        <button class="btn" id="quitBtn">Quitter la partie</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ecran de fin de partie -->
+  <div id="results" class="overlay" data-on="0"></div>
+
+  <!-- Chargement -->
+  <div id="loading" class="overlay" data-on="1">
+    <div class="loading-card">
+      <div class="loading-brand"><b>EASY</b><span>RANKED</span></div>
+      <div class="loading-bar"><i></i></div>
+      <div class="loading-text" id="loadingText">Initialisation...</div>
+      <p class="loading-note">
+        WebGL2 requis. Les modeles 3D (operateurs, armes, accessoires) et toutes les
+        textures PBR sont generes par le code au chargement : aucun fichier externe.
+      </p>
+    </div>
+  </div>
+
+  <noscript>
+    <div class="overlay" data-on="1"><div class="loading-card">
+      <h2>JavaScript requis</h2>
+      <p>EasyRanked est un jeu 3D temps reel : active JavaScript pour y jouer.</p>
+    </div></div>
+  </noscript>
+
+  <script type="module" src="./js/main.js"></script>
+</body>
+</html>
