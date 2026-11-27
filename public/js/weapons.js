@@ -55,14 +55,14 @@ export class WeaponRuntime {
     // le point de vue en sprint.
     //
     // Repos : arme a droite et en bas, canon legerement converge vers le centre.
-    this.restPos = new THREE.Vector3(0.19, -0.2, -0.42);
-    this.restRot = new THREE.Euler(0.025, 0.2, 0.015);
+    this.restPos = new THREE.Vector3(0.2, -0.17, -0.46);
+    this.restRot = new THREE.Euler(0.03, 0.21, 0.015);
     // Visee : l'organe de visee est amene exactement sur l'axe de la camera.
     const sight = this.model.userData.sightHeight ?? 0.12;
-    this.adsPos = new THREE.Vector3(0, -sight, -0.26);
+    this.adsPos = new THREE.Vector3(0, -sight, -0.37);
     this.adsRot = new THREE.Euler(0, 0, 0);
     // Sprint : arme basculee en travers du corps, canon vers le bas a gauche.
-    this.sprintPos = new THREE.Vector3(0.27, -0.3, -0.3);
+    this.sprintPos = new THREE.Vector3(0.28, -0.27, -0.34);
     this.sprintRot = new THREE.Euler(0.3, 0.68, 0.24);
     this.sprintBlend = 0;
 
@@ -101,7 +101,7 @@ export class WeaponRuntime {
     this.attachments = attachments || {};
     applyAttachments(this.model, this.attachments, this.camo);
     const sight = this.model.userData.sightHeight ?? 0.12;
-    this.adsPos.set(0, -sight, -0.26);
+    this.adsPos.set(0, -sight, -0.37);
     this.laser = this.model.userData.laser;
     if (this.laser?.beam) this._makeLaserBeam();
   }

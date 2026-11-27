@@ -234,7 +234,29 @@ snap { k, now, p[], e[], score, state, left }
 
 ---
 
-## 8. Régénérer l'arène
+## 8. Tests
+
+```bash
+npm install
+```
+
+```bash
+node tools/test_movement.mjs
+```
+
+Simule le contrôleur sur un sol plat, sans navigateur ni GPU, et vérifie les
+vitesses (marche / sprint / visée / accroupi), le déclenchement et la durée de
+la glissade, la plongée de caméra, la hauteur de saut et le temps de montée en
+visée. C'est ce test qui a révélé que le sprint plafonnait à 4,87 m/s au lieu de
+7,4 : le modèle additif `v += a·dt ; v *= 1 − f·dt` borne la vitesse à `a/f`,
+valeur inférieure à la cible **et dépendante du pas de temps**. Le contrôleur
+converge désormais exponentiellement vers la vitesse visée.
+
+`npm install` ne sert qu'aux outils : le jeu lui-même n'a aucune dépendance npm.
+
+---
+
+## 9. Régénérer l'arène
 
 ```bash
 node tools/gen_arena.mjs
@@ -247,7 +269,7 @@ ce qui garantit qu'aucun point d'apparition n'est isolé.
 
 ---
 
-## 9. Licence
+## 10. Licence
 
 Code du projet : MIT. `public/vendor/three.module.js` est Three.js r160.1,
 distribué sous licence MIT (voir `public/vendor/three.LICENSE`).

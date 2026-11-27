@@ -39,6 +39,14 @@ const box = (mat, x, y, z, w, h, d, opts = {}) => {
 };
 const r2 = (v) => Math.round(v * 100) / 100;
 
+// Taille de motif par materiau, en metres : fixe la densite de texture.
+// Une tuile de brique couvre 1,2 m (soit ~16 rangees de 7,5 cm), le beton 3 m.
+const TILE_M = { brick: 1.2, concrete: 3.0, metal_roof: 2.4, steel: 1.0 };
+const tileFor = (mat, w, h) => {
+  const m = TILE_M[mat] ?? 2.0;
+  return [Math.max(1, Math.round((w / m) * 10) / 10), Math.max(1, Math.round((h / m) * 10) / 10)];
+};
+
 /* ---------------------------------------------------------------- sol */
 const ground = { size: [W, D], mat: 'asphalt' };
 const patches = [
@@ -49,10 +57,10 @@ const patches = [
 
 /* ------------------------------------------------------- mur d'enceinte */
 const T = 1.1;
-box('concrete', 0, WALL_H / 2, -D / 2 + T / 2, W, WALL_H, T);
-box('concrete', 0, WALL_H / 2, D / 2 - T / 2, W, WALL_H, T);
-box('concrete', -W / 2 + T / 2, WALL_H / 2, 0, T, WALL_H, D);
-box('concrete', W / 2 - T / 2, WALL_H / 2, 0, T, WALL_H, D);
+box('concrete', 0, WALL_H / 2, -D / 2 + T / 2, W, WALL_H, T, { tile: tileFor('concrete', W, WALL_H) });
+box('concrete', 0, WALL_H / 2, D / 2 - T / 2, W, WALL_H, T, { tile: tileFor('concrete', W, WALL_H) });
+box('concrete', -W / 2 + T / 2, WALL_H / 2, 0, T, WALL_H, D, { tile: tileFor('concrete', D, WALL_H) });
+box('concrete', W / 2 - T / 2, WALL_H / 2, 0, T, WALL_H, D, { tile: tileFor('concrete', D, WALL_H) });
 
 /* ------------------------------------------- entrepot ouest (briques) */
 function warehouse(cx, cz, w, d, h, doors) {
@@ -61,28 +69,28 @@ function warehouse(cx, cz, w, d, h, doors) {
   for (const [sign, label] of [[-1, 'n'], [1, 's']]) {
     const z = cz + sign * (d / 2 - t / 2);
     const gap = doors[label];
-    if (gap === null) { box('brick', cx, h / 2, z, w, h, t, { tile: [w / 2, h / 2] }); continue; }
+    if (gap === null) { box('brick', cx, h / 2, z, w, h, t, { tile: tileFor('brick', w, h) }); continue; }
     const [gs, gw] = gap;                       // centre local, largeur
     const leftW = (gs - gw / 2) + w / 2;
     const rightW = w / 2 - (gs + gw / 2);
-    if (leftW > 0.2) box('brick', cx - w / 2 + leftW / 2, h / 2, z, leftW, h, t, { tile: [leftW / 2, h / 2] });
-    if (rightW > 0.2) box('brick', cx + w / 2 - rightW / 2, h / 2, z, rightW, h, t, { tile: [rightW / 2, h / 2] });
-    box('brick', cx + gs, h - 0.9, z, gw, 1.8, t, { tile: [gw / 2, 1] });   // linteau
+    if (leftW > 0.2) box('brick', cx - w / 2 + leftW / 2, h / 2, z, leftW, h, t, { tile: tileFor('brick', leftW, h) });
+    if (rightW > 0.2) box('brick', cx + w / 2 - rightW / 2, h / 2, z, rightW, h, t, { tile: tileFor('brick', rightW, h) });
+    box('brick', cx + gs, h - 0.9, z, gw, 1.8, t, { tile: tileFor('brick', gw, 1.8) });   // linteau
   }
   // mur est / ouest
   for (const [sign, label] of [[-1, 'w'], [1, 'e']]) {
     const x = cx + sign * (w / 2 - t / 2);
     const gap = doors[label];
-    if (gap === null) { box('brick', x, h / 2, cz, t, h, d, { tile: [d / 2, h / 2] }); continue; }
+    if (gap === null) { box('brick', x, h / 2, cz, t, h, d, { tile: tileFor('brick', d, h) }); continue; }
     const [gs, gw] = gap;
     const nearW = (gs - gw / 2) + d / 2;
     const farW = d / 2 - (gs + gw / 2);
-    if (nearW > 0.2) box('brick', x, h / 2, cz - d / 2 + nearW / 2, t, h, nearW, { tile: [nearW / 2, h / 2] });
-    if (farW > 0.2) box('brick', x, h / 2, cz + d / 2 - farW / 2, t, h, farW, { tile: [farW / 2, h / 2] });
-    box('brick', x, h - 0.9, cz + gs, t, 1.8, gw, { tile: [gw / 2, 1] });
+    if (nearW > 0.2) box('brick', x, h / 2, cz - d / 2 + nearW / 2, t, h, nearW, { tile: tileFor('brick', nearW, h) });
+    if (farW > 0.2) box('brick', x, h / 2, cz + d / 2 - farW / 2, t, h, farW, { tile: tileFor('brick', farW, h) });
+    box('brick', x, h - 0.9, cz + gs, t, 1.8, gw, { tile: tileFor('brick', gw, 1.8) });
   }
   // toiture + verriere
-  box('metal_roof', cx, h + 0.15, cz, w + 1.2, 0.3, d + 1.2, { collide: false, tile: [w / 2, d / 2] });
+  box('metal_roof', cx, h + 0.15, cz, w + 1.2, 0.3, d + 1.2, { collide: false, tile: tileFor('metal_roof', w, d) });
   decor.push({
     id: `s${uid++}`, kind: 'skylight', mat: 'glass',
     pos: [r2(cx), r2(h + 0.3), r2(cz)], size: [r2(w * 0.42), 0.12, r2(d * 0.78)], ry: 0,
@@ -103,7 +111,7 @@ warehouse(28, 14, 24, 22, 7.5, { n: [0, 8], s: null, w: [-2, 6], e: null });
 /* ------------------------------------- auvent central (cf. reference 3) */
 (() => {
   const cx = 2, cz = 2, w = 22, d = 14, h = 6.2;
-  box('metal_roof', cx, h, cz, w, 0.35, d, { collide: false, tile: [w / 2, d / 2] });
+  box('metal_roof', cx, h, cz, w, 0.35, d, { collide: false, tile: tileFor('metal_roof', w, d) });
   for (const sx of [-1, 1]) for (const sz of [-1, 1]) {
     box('steel', cx + sx * (w / 2 - 1), h / 2, cz + sz * (d / 2 - 1), 0.45, h, 0.45);
   }

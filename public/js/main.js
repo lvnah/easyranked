@@ -18,6 +18,30 @@ import { Avatar } from './avatars.js';
 import { Lobby, Api } from './lobby.js';
 import { material, sprite } from './textures.js';
 
+/* --------------------------------------------------- compatibilite canvas */
+
+/**
+ * `roundRect` n'existe que depuis Chrome 99 / Firefox 112 / Safari 16.4.
+ * Le HUD et les plaques de nom l'utilisent : sans repli, un navigateur un peu
+ * ancien ferait echouer tout le dessin de l'interface.
+ */
+if (typeof CanvasRenderingContext2D !== 'undefined'
+    && !CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+    const radius = Math.min(Array.isArray(r) ? r[0] : (r || 0), Math.abs(w) / 2, Math.abs(h) / 2);
+    this.moveTo(x + radius, y);
+    this.lineTo(x + w - radius, y);
+    this.quadraticCurveTo(x + w, y, x + w, y + radius);
+    this.lineTo(x + w, y + h - radius);
+    this.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+    this.lineTo(x + radius, y + h);
+    this.quadraticCurveTo(x, y + h, x, y + h - radius);
+    this.lineTo(x, y + radius);
+    this.quadraticCurveTo(x, y, x + radius, y);
+    return this;
+  };
+}
+
 /* ------------------------------------------------------------ chargement */
 
 const loadingEl = document.getElementById('loading');

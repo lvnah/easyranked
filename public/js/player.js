@@ -13,21 +13,27 @@ import * as THREE from 'three';
 import { Physics, PLAYER, rayPlayer } from './physics.js';
 import { WeaponRuntime } from './weapons.js';
 
+/**
+ * Toutes les constantes d'acceleration et de friction sont des TAUX par seconde
+ * utilises dans des exponentielles : la vitesse converge vers la cible de facon
+ * independante du framerate. Un modele additif (v += a*dt ; v *= 1 - f*dt)
+ * plafonne la vitesse a a/f, valeur qui depend du pas de temps et qui peut
+ * rester sous la vitesse visee — c'est exactement ce qui bridait le sprint.
+ */
 const SPEED = {
   walk: 4.7,
   sprint: 7.4,
   crouch: 2.7,
   adsMul: 0.62,
-  air: 1.6,
-  accelGround: 62,
-  accelAir: 13,
-  frictionGround: 11.5,
-  frictionAir: 0.28,
+  accelGround: 17,        // ~90 % de la vitesse cible en 0,14 s
+  accelAir: 3.4,          // controle aerien limite : l'inertie domine
+  frictionGround: 13,     // arret en ~0,2 s quand on relache les touches
   jump: 6.5,
   gravity: 19.6,
   slideBoost: 1.22,
   slideMax: 9.6,
   slideFriction: 3.1,
+  slidePush: 7.0,
   slideMinSpeed: 2.4,
   slideCooldown: 0.75,
   slideMaxTime: 1.1,
@@ -217,38 +223,36 @@ export class PlayerController {
 
     /* -------------------------------------------------- integration horizontale */
     if (this.sliding) {
-      // En glissade on ne pousse plus : seule une correction laterale reste possible.
-      const fric = Math.max(0, 1 - SPEED.slideFriction * dt);
-      this.vel.x *= fric;
-      this.vel.z *= fric;
+      // On ne relance pas en glissade : l'inertie acquise s'amortit, seule une
+      // correction de trajectoire reste possible.
+      const keep = Math.exp(-SPEED.slideFriction * dt);
+      this.vel.x *= keep;
+      this.vel.z *= keep;
       if (wishing) {
-        this.vel.x += wish.x * 7.0 * dt;
-        this.vel.z += wish.z * 7.0 * dt;
+        this.vel.x += wish.x * SPEED.slidePush * dt;
+        this.vel.z += wish.z * SPEED.slidePush * dt;
       }
     } else if (this.grounded) {
-      const accel = SPEED.accelGround * dt;
       if (wishing) {
-        this.vel.x += wish.x * accel;
-        this.vel.z += wish.z * accel;
-      }
-      const fric = Math.max(0, 1 - SPEED.frictionGround * dt);
-      this.vel.x *= fric;
-      this.vel.z *= fric;
-      const sp = Math.hypot(this.vel.x, this.vel.z);
-      if (sp > maxSpeed) {
-        const k = maxSpeed / sp;
-        this.vel.x *= k;
-        this.vel.z *= k;
+        // Convergence exponentielle vers wish * maxSpeed : la vitesse de pointe
+        // vaut exactement maxSpeed, quel que soit le framerate.
+        const k = 1 - Math.exp(-SPEED.accelGround * dt);
+        this.vel.x += (wish.x * maxSpeed - this.vel.x) * k;
+        this.vel.z += (wish.z * maxSpeed - this.vel.z) * k;
+      } else {
+        const keep = Math.exp(-SPEED.frictionGround * dt);
+        this.vel.x *= keep;
+        this.vel.z *= keep;
       }
     } else {
-      // En l'air : controle limite (le strafe reste possible, pas la relance).
-      const accel = SPEED.accelAir * dt;
+      // En l'air : l'elan est conserve, on n'autorise qu'une correction de cap.
+      const airCap = Math.max(maxSpeed, SPEED.sprint) * 1.05;
       if (wishing) {
-        this.vel.x += wish.x * accel;
-        this.vel.z += wish.z * accel;
+        const k = 1 - Math.exp(-SPEED.accelAir * dt);
+        this.vel.x += (wish.x * airCap - this.vel.x) * k;
+        this.vel.z += (wish.z * airCap - this.vel.z) * k;
       }
       const sp = Math.hypot(this.vel.x, this.vel.z);
-      const airCap = Math.max(maxSpeed, SPEED.sprint) * 1.05;
       if (sp > airCap) {
         const k = airCap / sp;
         this.vel.x *= k;

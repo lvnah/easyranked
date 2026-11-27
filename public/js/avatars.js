@@ -57,9 +57,12 @@ export class Avatar {
     this.weapon = cloneShared(weaponTemplate(shape, info.camo || 'default', camo, info.attachments));
     const wSockets = resolveSockets(this.weapon);
     this.weapon.scale.setScalar(1.0);
+    // Le bras de l'avatar s'etend vers -Y (il pend) alors que le canon pointe
+    // vers -Z : une rotation de -90 deg autour de X aligne le canon sur l'axe du
+    // bras, donc vers l'avant une fois l'epaule levee en position de tir.
     this.rig.armR.hand.add(this.weapon);
-    this.weapon.position.set(0.0, -0.05, -0.12);
-    this.weapon.rotation.set(Math.PI / 2 - 0.1, 0, 0);
+    this.weapon.position.set(0.0, -0.075, 0.015);
+    this.weapon.rotation.set(-Math.PI / 2 + 0.12, 0, 0);
     this.muzzle = wSockets.muzzleTip;
 
     this.walkPhase = Math.random() * Math.PI * 2;

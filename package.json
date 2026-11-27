@@ -1,0 +1,14 @@
+{
+  "name": "easyranked",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Outils de developpement d'EasyRanked (generateur d'arene, tests headless). Le jeu lui-meme n'a besoin d'aucune dependance npm : Three.js est vendorise dans public/vendor/.",
+  "scripts": {
+    "arena": "node tools/gen_arena.mjs",
+    "test": "node tools/test_movement.mjs"
+  },
+  "devDependencies": {
+    "three": "0.160.1"
+  }
+}

@@ -452,8 +452,22 @@ export function buildDetailedWeapon(opts = {}) {
   if (shape !== 'dmr') {
     piece(body, box(0.03, 0.045, 0.045), M.metal, { pos: [0, 0.012, barrelZ + 0.03] });
   }
-  // Guidon rabattable.
-  piece(body, box(0.016, 0.03, 0.012), M.metal, { pos: [0, hgR + 0.026, barrelZ + 0.02] });
+  /* --------------------------------- mires metalliques (sans optique) */
+  // Guidon et oeilleton sont places exactement a la hauteur de visee par
+  // defaut : sans optique, la pose d'ADS les aligne pile sur le reticule.
+  const sightY = P.recH / 2 + 0.047;
+  // Guidon : tourelle + ergot, protege par deux oreilles.
+  piece(body, box(0.022, 0.03, 0.018), M.metal, { pos: [0, sightY - 0.018, barrelZ + 0.03] });
+  piece(body, box(0.006, 0.026, 0.01), M.metal, { pos: [0, sightY, barrelZ + 0.03] });
+  for (const sx of [-1, 1]) {
+    piece(body, box(0.005, 0.03, 0.01), M.metal, { pos: [sx * 0.013, sightY - 0.004, barrelZ + 0.03] });
+  }
+  // Oeilleton : anneau a l'arriere du rail du recepteur.
+  const apertureZ = recZ - 0.01 + railLen / 2 - 0.018;
+  piece(body, box(0.03, 0.016, 0.016), M.metal, { pos: [0, sightY - 0.026, apertureZ] });
+  piece(body, torus(0.0105, 0.0035, 6, 14), M.metal,
+    { pos: [0, sightY, apertureZ], rot: [0, 0, 0] });
+  piece(body, box(0.034, 0.008, 0.012), M.metal, { pos: [0, sightY - 0.012, apertureZ] });
 
   /* ------------------------------------------------------------ chargeur */
   const magWellZ = recZ + 0.02;
