@@ -1,0 +1,155 @@
+{
+  "balance": {
+    "maxHealth": 150,
+    "shieldMax": 50,
+    "headMultiplier": 1.85,
+    "limbMultiplier": 0.82,
+    "respawnDelay": 3.2,
+    "regenDelay": 5.0,
+    "regenRate": 22
+  },
+  "camos": [
+    { "id": "default",  "name": "Usine",        "minLevel": 1,  "base": "#2b2f33", "accent": "#17191c", "pattern": "none" },
+    { "id": "woodland", "name": "Woodland",     "minLevel": 5,  "base": "#4a5333", "accent": "#2b3220", "pattern": "blotch" },
+    { "id": "urban",    "name": "Urban Splin",  "minLevel": 12, "base": "#5c6166", "accent": "#2e3236", "pattern": "splinter" },
+    { "id": "desert",   "name": "Arid",         "minLevel": 22, "base": "#9c8763", "accent": "#5f5138", "pattern": "blotch" },
+    { "id": "tiger",    "name": "Tiger",        "minLevel": 35, "base": "#3d3a2f", "accent": "#141310", "pattern": "stripe" },
+    { "id": "digital",  "name": "Digital Noir", "minLevel": 50, "base": "#24282d", "accent": "#0d0f11", "pattern": "digital" },
+    { "id": "gold",     "name": "Or",           "minLevel": 100,"base": "#b89338", "accent": "#6d5416", "pattern": "none", "metal": true }
+  ],
+  "weapons": {
+    "mk18": {
+      "name": "MK18",
+      "class": "Carabine",
+      "minLevel": 1,
+      "damage": 26,
+      "rpm": 760,
+      "magazine": 30,
+      "reserve": 150,
+      "reloadTime": 2.1,
+      "reloadEmptyTime": 2.75,
+      "adsTime": 0.24,
+      "spreadHip": 2.6,
+      "spreadAds": 0.28,
+      "spreadMoveMul": 1.9,
+      "recoil": { "vert": 0.62, "horiz": 0.26, "recovery": 7.5, "kick": 0.045, "pattern": 0.55 },
+      "rangeFull": 34,
+      "rangeFalloff": 62,
+      "falloffMin": 0.62,
+      "mobility": 1.0,
+      "bulletsPerShot": 1,
+      "auto": true,
+      "shape": "carbine"
+    },
+    "mp5": {
+      "name": "MP5-K",
+      "class": "PM",
+      "minLevel": 1,
+      "damage": 22,
+      "rpm": 880,
+      "magazine": 30,
+      "reserve": 180,
+      "reloadTime": 1.85,
+      "reloadEmptyTime": 2.4,
+      "adsTime": 0.19,
+      "spreadHip": 2.1,
+      "spreadAds": 0.34,
+      "spreadMoveMul": 1.45,
+      "recoil": { "vert": 0.44, "horiz": 0.31, "recovery": 9.0, "kick": 0.034, "pattern": 0.35 },
+      "rangeFull": 20,
+      "rangeFalloff": 40,
+      "falloffMin": 0.55,
+      "mobility": 1.09,
+      "bulletsPerShot": 1,
+      "auto": true,
+      "shape": "smg"
+    },
+    "ak74": {
+      "name": "AK-74M",
+      "class": "Fusil d'assaut",
+      "minLevel": 3,
+      "damage": 30,
+      "rpm": 620,
+      "magazine": 30,
+      "reserve": 150,
+      "reloadTime": 2.35,
+      "reloadEmptyTime": 3.0,
+      "adsTime": 0.29,
+      "spreadHip": 3.0,
+      "spreadAds": 0.24,
+      "spreadMoveMul": 2.1,
+      "recoil": { "vert": 0.88, "horiz": 0.34, "recovery": 6.4, "kick": 0.058, "pattern": 0.72 },
+      "rangeFull": 44,
+      "rangeFalloff": 78,
+      "falloffMin": 0.66,
+      "mobility": 0.94,
+      "bulletsPerShot": 1,
+      "auto": true,
+      "shape": "ak"
+    },
+    "mk12": {
+      "name": "MK12 SPR",
+      "class": "Tireur d'elite",
+      "minLevel": 8,
+      "damage": 55,
+      "rpm": 300,
+      "magazine": 20,
+      "reserve": 100,
+      "reloadTime": 2.5,
+      "reloadEmptyTime": 3.1,
+      "adsTime": 0.34,
+      "spreadHip": 4.2,
+      "spreadAds": 0.1,
+      "spreadMoveMul": 2.6,
+      "recoil": { "vert": 1.35, "horiz": 0.2, "recovery": 5.2, "kick": 0.09, "pattern": 0.4 },
+      "rangeFull": 70,
+      "rangeFalloff": 120,
+      "falloffMin": 0.8,
+      "mobility": 0.88,
+      "bulletsPerShot": 1,
+      "auto": false,
+      "shape": "dmr"
+    }
+  },
+  "slots": ["optic", "barrel", "muzzle", "stock", "laser", "grip", "mag"],
+  "attachments": {
+    "optic": [
+      { "id": "reddot",  "name": "Point rouge RDS",  "minLevel": 5,  "mods": { "adsTime": 0.015, "spreadAds": -0.04, "zoom": 1.15 } },
+      { "id": "holo",    "name": "Holographique",    "minLevel": 14, "mods": { "adsTime": 0.03,  "spreadAds": -0.06, "zoom": 1.25 } },
+      { "id": "acog",    "name": "Lunette 3.4x",     "minLevel": 26, "mods": { "adsTime": 0.075, "spreadAds": -0.1,  "zoom": 2.6, "mobility": -0.03 } }
+    ],
+    "barrel": [
+      { "id": "long",    "name": "Canon long 16\"",  "minLevel": 7,  "mods": { "rangeFull": 10, "rangeFalloff": 18, "recoilVert": -0.06, "adsTime": 0.04, "mobility": -0.05 } },
+      { "id": "short",   "name": "Canon court CQB",  "minLevel": 10, "mods": { "rangeFull": -7, "rangeFalloff": -12, "adsTime": -0.035, "mobility": 0.05, "spreadHip": -0.45 } }
+    ],
+    "muzzle": [
+      { "id": "comp",    "name": "Compensateur",     "minLevel": 5,  "mods": { "recoilHoriz": -0.12, "recoilVert": -0.1 } },
+      { "id": "suppressor", "name": "Silencieux",    "minLevel": 18, "mods": { "recoilVert": -0.05, "rangeFull": -4, "adsTime": 0.02, "silent": 1 } },
+      { "id": "brake",   "name": "Frein de bouche",  "minLevel": 30, "mods": { "recoilVert": -0.2, "recoilHoriz": 0.05, "mobility": -0.02 } }
+    ],
+    "stock": [
+      { "id": "heavy",   "name": "Crosse tactique lourde", "minLevel": 5, "mods": { "recoilVert": -0.14, "recoilHoriz": -0.08, "adsTime": 0.03, "mobility": -0.04 } },
+      { "id": "light",   "name": "Crosse squelette",       "minLevel": 16, "mods": { "adsTime": -0.04, "mobility": 0.06, "recoilVert": 0.07 } }
+    ],
+    "laser": [
+      { "id": "laser1",  "name": "Laser tactique",   "minLevel": 5,  "mods": { "spreadHip": -0.7, "visibleLaser": 1 } },
+      { "id": "laser2",  "name": "Laser IR discret", "minLevel": 24, "mods": { "spreadHip": -0.45 } }
+    ],
+    "grip": [
+      { "id": "vertical","name": "Poignee verticale","minLevel": 5,  "mods": { "recoilVert": -0.12, "spreadMoveMul": 0.1 } },
+      { "id": "angled",  "name": "Poignee inclinee", "minLevel": 20, "mods": { "adsTime": -0.03, "recoilHoriz": -0.06 } }
+    ],
+    "mag": [
+      { "id": "ext",     "name": "Chargeur etendu",  "minLevel": 5,  "mods": { "magazine": 10, "reloadTime": 0.25, "mobility": -0.02 } },
+      { "id": "fast",    "name": "Chargeurs rapides","minLevel": 13, "mods": { "reloadTime": -0.45 } }
+    ]
+  },
+  "grenades": { "count": 2, "damage": 120, "radius": 5.5, "fuse": 2.6, "throwSpeed": 17 },
+  "modes": {
+    "1v1": { "teamSize": 1, "scoreLimit": 15, "timeLimit": 420 },
+    "2v2": { "teamSize": 2, "scoreLimit": 30, "timeLimit": 480 },
+    "3v3": { "teamSize": 3, "scoreLimit": 45, "timeLimit": 540 },
+    "4v4": { "teamSize": 4, "scoreLimit": 60, "timeLimit": 600 }
+  },
+  "xp": { "kill": 100, "headshot": 35, "assist": 40, "win": 500, "loss": 150, "perDamage": 0.4 }
+}
