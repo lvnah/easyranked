@@ -647,9 +647,12 @@ function readSensitivity() {
 async function boot() {
   try {
     setLoading('Chargement de la configuration...');
+    // shared/ vit hors de la racine web : on passe par le script PHP, qui ne
+    // demande aucune reecriture. Le chemin direct sert de repli (serveur de
+    // developpement, ou deploiement purement statique sans PHP).
     const [arenaData, weaponsCfg] = await Promise.all([
-      fetchJson('./shared/arena.json').catch(() => fetchJson('./api/shared.php?f=arena')),
-      fetchJson('./shared/weapons.json').catch(() => fetchJson('./api/shared.php?f=weapons')),
+      fetchJson('./api/shared.php?f=arena').catch(() => fetchJson('./shared/arena.json')),
+      fetchJson('./api/shared.php?f=weapons').catch(() => fetchJson('./shared/weapons.json')),
     ]);
 
     setLoading('Generation des textures et des modeles...');
