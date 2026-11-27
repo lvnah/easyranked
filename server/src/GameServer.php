@@ -328,7 +328,9 @@ final class GameServer implements MessageComponentInterface
                 }
             }
         }
-        if ($this->perf['n'] > 0) {
+        // On ne journalise la charge que s'il y a reellement du trafic : un serveur
+        // au repos ne doit pas remplir les journaux.
+        if ($this->perf['n'] > 0 && ($this->rooms !== [] || $this->connById !== [])) {
             $avg = ($this->perf['sum'] / $this->perf['n']) * 1000;
             $budget = (1 / $this->tickRate) * 1000;
             error_log(sprintf(
@@ -339,8 +341,8 @@ final class GameServer implements MessageComponentInterface
                 count($this->rooms),
                 count($this->connById)
             ));
-            $this->perf = ['max' => 0.0, 'sum' => 0.0, 'n' => 0];
         }
+        $this->perf = ['max' => 0.0, 'sum' => 0.0, 'n' => 0];
     }
 
     private function sendTo(ConnectionInterface $conn, array $payload): void

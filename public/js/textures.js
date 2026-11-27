@@ -268,8 +268,12 @@ function corrugated(size = 512, baseColor = 0x6a6f73) {
   return { map: canvas, height, rough, size, metal: 0.78 };
 }
 
-/** Acier peint, raye et ecaille (poutres, piliers). */
-function paintedSteel(size = 256, baseColor = 0x4a5157) {
+/**
+ * Acier peint. `wear` dose l'ecaillage : eleve pour des poutres d'entrepot,
+ * faible pour une carrosserie, qui doit lire comme de la tole peinte et non
+ * comme du beton grele.
+ */
+function paintedSteel(size = 256, baseColor = 0x4a5157, wear = 1.0) {
   const canvas = makeCanvas(size);
   const ctx = canvas.getContext('2d');
   const scratch = fbm(size, 48, 3, 0x6611);
@@ -278,16 +282,18 @@ function paintedSteel(size = 256, baseColor = 0x4a5157) {
   const height = new Float32Array(size * size);
   const rough = new Float32Array(size * size);
   const base = hexToRgb(baseColor);
+  const threshold = 0.58 + (1 - wear) * 0.26;        // moins d'usure -> seuil plus haut
   for (let i = 0; i < size * size; i++) {
-    const worn = Math.max(0, chip[i] - 0.58) * 2.4;
-    const c = mix(mix(base, [150, 148, 145], scratch[i] * 0.18), [92, 84, 74], Math.min(1, worn));
+    const worn = Math.max(0, chip[i] - threshold) * 2.4 * wear;
+    const c = mix(mix(base, [150, 148, 145], scratch[i] * 0.18 * wear),
+                  [92, 84, 74], Math.min(1, worn));
     img.data[i * 4] = c[0]; img.data[i * 4 + 1] = c[1]; img.data[i * 4 + 2] = c[2];
     img.data[i * 4 + 3] = 255;
-    height[i] = scratch[i] * 0.4 + worn * 0.6;
-    rough[i] = 0.38 + worn * 0.4 + scratch[i] * 0.12;
+    height[i] = (scratch[i] * 0.4 + worn * 0.6) * wear;
+    rough[i] = 0.3 + worn * 0.4 + scratch[i] * 0.1 * wear;
   }
   ctx.putImageData(img, 0, 0);
-  return { map: canvas, height, rough, size, metal: 0.85 };
+  return { map: canvas, height, rough, size, metal: 0.88 };
 }
 
 /** Conteneur maritime : nervures verticales, peinture usee, rouille basse. */
@@ -547,12 +553,13 @@ const RECIPES = {
   concrete_slab:      () => concrete(512, -0.04),
   asphalt:            () => asphalt(512),
   metal_roof:         () => corrugated(512, 0x5f666b),
-  steel:              () => paintedSteel(256, 0x454c52),
+  steel:              () => paintedSteel(256, 0x454c52, 1.0),
   container_red:      () => container(512, 0x8a3b32),
   container_blue:     () => container(512, 0x2d4f6b),
   container_green:    () => container(512, 0x35543c),
-  van_white:          () => paintedSteel(256, 0xa9aba8),
-  van_grey:           () => paintedSteel(256, 0x6d7073),
+  // Carrosseries : tole peinte, presque lisse, legerement sale.
+  van_white:          () => paintedSteel(256, 0xbcbfbd, 0.28),
+  van_grey:           () => paintedSteel(256, 0x74797d, 0.35),
   fabric:             () => fabric(256, 0x2f3630),
   fabric_pants:       () => fabric(256, 0x343a31),
   cordura:            () => cordura(256, 0x30342c),
@@ -562,7 +569,7 @@ const RECIPES = {
   skin:               () => skin(128, 0xb98a6a),
   rubber:             () => polymer(128, 0x15171a, false),
   crate_wood:         () => fabric(256, 0x6b5436),
-  barrel:             () => paintedSteel(256, 0x4e5a3f),
+  barrel:             () => paintedSteel(256, 0x4e5a3f, 0.7),
 };
 
 /**

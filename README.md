@@ -232,6 +232,10 @@ snap { k, now, p[], e[], score, state, left }
 
 `F3` affiche FPS, appels de rendu, triangles, résolution interne et ping.
 
+Côté serveur, le tick est journalisé toutes les 15 s. Mesuré sur une salle 2v2
+avec trois bots : **0,33 ms de tick moyen, 2,36 ms au pire**, pour un budget de
+25 ms à 40 Hz — soit environ 1,3 % du budget utilisé.
+
 ---
 
 ## 8. Tests

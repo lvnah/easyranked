@@ -956,7 +956,7 @@ export function buildCrate() {
 /** Fut metallique a nervures. */
 export function buildBarrel() {
   const g = new THREE.Group();
-  const mat = material('barrel', { repeat: [2, 1] });
+  const mat = material('barrel', { repeat: [2, 1], normalScale: 0.6 });
   piece(g, cyl(0.29, 0.29, 1.12, 18), mat, { pos: [0, 0, 0] });
   for (const y of [-0.34, 0, 0.34]) piece(g, cyl(0.305, 0.305, 0.055, 18), mat, { pos: [0, y, 0] });
   piece(g, cyl(0.3, 0.3, 0.04, 18), mat, { pos: [0, 0.56, 0] });
@@ -988,7 +988,8 @@ export function buildDebris() {
 /** Vehicule utilitaire (couverture). */
 export function buildVehicle(sub = 'van', matKey = 'van_white') {
   const g = new THREE.Group();
-  const bodyMat = material(matKey, { repeat: [2, 1] });
+  // Repetition faible et relief attenue : une carrosserie est lisse.
+  const bodyMat = material(matKey, { repeat: [1.6, 0.9], normalScale: 0.35 });
   const glass = new THREE.MeshPhysicalMaterial({
     color: 0x1b242b, metalness: 0.1, roughness: 0.12,
     transmission: 0.45, thickness: 0.02, transparent: true, opacity: 0.8,
