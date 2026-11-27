@@ -61,9 +61,21 @@ ce qui les met hors de portée du web tout en laissant PHP les lire.
 
 **2. Le type de site doit être « PHP », pas « Programme utilisateur ».**
 Le site, c'est l'API REST et les fichiers statiques : du PHP classique. Le serveur
-WebSocket est un processus **séparé**, ce n'est pas le backend du site. Si le type
-de site pointe vers un programme qui n'écoute pas, le frontal HTTP de l'hébergeur
-répond *« Connection to upstream failed »* : il n'a trouvé personne au bout.
+WebSocket est un processus **séparé**, ce n'est pas le backend du site, et il lui
+faut son propre site sur un sous-domaine (voir plus bas). Si le site du jeu pointe
+vers un programme — qui n'écoute pas, ou pas sur l'interface attendue — le frontal
+HTTP de l'hébergeur répond *« Connection to upstream failed »* : il n'a trouvé
+personne au bout.
+
+Il faut donc **deux sites** :
+
+| Adresse | Type | Configuration |
+|---|---|---|
+| `mondomaine.tld` | PHP | racine : `easyranked/public` |
+| `ws.mondomaine.tld` | Programme utilisateur | commande : `php server/server.php`, répertoire de travail : `easyranked/` |
+
+Le premier suffit à jouer (entraînement contre bots). Le second ajoute le
+multijoueur temps réel.
 
 **3. Aucune réécriture d'URL n'est nécessaire.** Le client appelle
 `api/index.php?r=<route>` et `api/shared.php?f=<fichier>`, qui fonctionnent sous
@@ -77,20 +89,41 @@ compression : s'il est ignoré, le jeu fonctionne quand même.
 jeu reste jouable** : le mode entraînement contre bots tourne entièrement dans le
 navigateur. Seule la case « Multijoueur temps réel » du lobby devient inopérante.
 
-Pour l'activer sur un hébergement mutualisé qui autorise les processus longs :
+Il lui faut donc **son propre site**, distinct de celui du jeu : type
+« programme utilisateur », sur un sous-domaine dédié (`ws.mondomaine.tld`).
 
-```bash
-php /home/UTILISATEUR/www/easyranked/server/server.php --port=$PORT --host=0.0.0.0
+```
+Type                  Programme utilisateur
+Commande              php server/server.php
+Répertoire de travail easyranked/
 ```
 
-Déclare cette commande comme un processus permanent (ou un second site de type
-« programme utilisateur » sur un sous-domaine dédié), puis renseigne son adresse
-dans le champ serveur du lobby — en `wss://` si le frontal termine le TLS, sinon
-`ws://`. Un navigateur en HTTPS refuse une connexion `ws://` non chiffrée : avec
-un site en HTTPS, il faut nécessairement `wss://`.
+`server.php` lit l'adresse et le port que l'hébergeur lui impose, dans cet ordre
+de priorité :
 
-Si l'hébergeur impose un port via une variable d'environnement, `--port=$PORT`
-la reprend ; le serveur accepte aussi `ER_PORT` et `ER_HOST`.
+1. `--host` / `--port` en ligne de commande ;
+2. **`IP` et `PORT`** — les variables posées par AlwaysData, Heroku, Scalingo,
+   Clever Cloud… ;
+3. `ER_HOST` / `ER_PORT`, propres au projet ;
+4. `0.0.0.0:8081` par défaut, pour un poste de développement.
+
+Aucun argument n'est donc nécessaire : le programme se place tout seul sur la
+bonne interface. AlwaysData impose une adresse **IPv6** (`::` ou la valeur de
+`IP`) et un port fixe (`PORT`) ; écouter sur `0.0.0.0` ne suffit pas, le frontal
+ne trouverait personne et répondrait « Connection to upstream failed ».
+
+Deux pièges à vérifier avant de chercher ailleurs :
+
+- **`vendor/` doit exister sur le serveur.** Il n'est pas versionné : si le
+  dossier manque, `server.php` s'arrête dès le démarrage et l'hébergeur répond,
+  là encore, « Connection to upstream failed ». Lance `composer install` en SSH
+  à la racine du projet, ou téléverse `vendor/` depuis ton poste.
+- **Un site en HTTPS exige `wss://`.** Un navigateur refuse une connexion
+  `ws://` non chiffrée depuis une page sécurisée. Renseigne
+  `wss://ws.mondomaine.tld` dans le champ serveur du lobby.
+
+Ouvrir l'adresse du WebSocket dans un navigateur affiche une erreur : c'est
+normal, ce service ne répond qu'aux requêtes d'upgrade WebSocket.
 
 ### Production (Apache / nginx auto-hébergé)
 
