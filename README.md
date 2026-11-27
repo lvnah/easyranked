@@ -40,11 +40,63 @@ la simulation tourne alors entièrement dans le navigateur.
 | `--host` / `ER_HOST` | `0.0.0.0` | Interface |
 | `--tick` / `ER_TICKRATE` | `40` | Tickrate, borné à 20–60 Hz |
 
-### Production (Apache / nginx)
+### Production (hébergement mutualisé : AlwaysData, o2switch, OVH…)
 
-`public/` est la racine web ; `public/.htaccess` route `/api/*` vers l'API et sert
-`shared/*.json` (le dossier `shared/` reste hors racine web). Derrière nginx, il
-faut un `proxy_pass` WebSocket vers le port du serveur temps réel.
+Trois points, et un seul compte vraiment :
+
+**1. La racine du site doit pointer sur `public/`, pas sur la racine du projet.**
+Téléverse **tout** le projet (y compris `shared/`, `server/` et `vendor/`), puis
+règle le répertoire racine du site sur le sous-dossier `public`. Les dossiers
+`shared/` et `server/` doivent rester *à côté* de `public/`, jamais dedans : c'est
+ce qui les met hors de portée du web tout en laissant PHP les lire.
+
+```
+~/www/easyranked/
+├── public/      ← racine du site
+├── shared/
+├── server/
+├── vendor/
+└── data/        ← doit être accessible en écriture (SQLite)
+```
+
+**2. Le type de site doit être « PHP », pas « Programme utilisateur ».**
+Le site, c'est l'API REST et les fichiers statiques : du PHP classique. Le serveur
+WebSocket est un processus **séparé**, ce n'est pas le backend du site. Si le type
+de site pointe vers un programme qui n'écoute pas, le frontal HTTP de l'hébergeur
+répond *« Connection to upstream failed »* : il n'a trouvé personne au bout.
+
+**3. Aucune réécriture d'URL n'est nécessaire.** Le client appelle
+`api/index.php?r=<route>` et `api/shared.php?f=<fichier>`, qui fonctionnent sous
+Apache comme sous nginx, et depuis n'importe quel sous-répertoire.
+`public/.htaccess` n'ajoute que des routes plus lisibles (`/api/login`) et de la
+compression : s'il est ignoré, le jeu fonctionne quand même.
+
+#### Le multijoueur temps réel
+
+`server/server.php` est un démon qui doit tourner en permanence. Sans lui, **le
+jeu reste jouable** : le mode entraînement contre bots tourne entièrement dans le
+navigateur. Seule la case « Multijoueur temps réel » du lobby devient inopérante.
+
+Pour l'activer sur un hébergement mutualisé qui autorise les processus longs :
+
+```bash
+php /home/UTILISATEUR/www/easyranked/server/server.php --port=$PORT --host=0.0.0.0
+```
+
+Déclare cette commande comme un processus permanent (ou un second site de type
+« programme utilisateur » sur un sous-domaine dédié), puis renseigne son adresse
+dans le champ serveur du lobby — en `wss://` si le frontal termine le TLS, sinon
+`ws://`. Un navigateur en HTTPS refuse une connexion `ws://` non chiffrée : avec
+un site en HTTPS, il faut nécessairement `wss://`.
+
+Si l'hébergeur impose un port via une variable d'environnement, `--port=$PORT`
+la reprend ; le serveur accepte aussi `ER_PORT` et `ER_HOST`.
+
+### Production (Apache / nginx auto-hébergé)
+
+`public/` est la racine web. `public/.htaccess` ajoute les routes lisibles et la
+compression. Derrière nginx, il faut un `proxy_pass` avec `Upgrade`/`Connection`
+vers le port du serveur temps réel pour le WebSocket.
 
 ---
 

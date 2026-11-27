@@ -9,6 +9,18 @@ declare(strict_types=1);
 
 $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 
+// Un fichier PHP qui existe reellement est servi tel quel (api/shared.php,
+// api/index.php) : sinon le developpement ne refleterait pas la production,
+// ou tout /api/* est capture par le routage ci-dessous.
+$real = __DIR__ . $path;
+if ($path !== '/' && is_file($real)) {
+    if (str_ends_with($real, '.php')) {
+        require $real;
+        return true;
+    }
+    return false;        // fichier statique
+}
+
 if (str_starts_with($path, '/api')) {
     require __DIR__ . '/api/index.php';
     return true;

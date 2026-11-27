@@ -11,7 +11,12 @@ import { buildDetailedWeapon } from './visuals.js';
 import { material, skyTexture } from './textures.js';
 import { resolveWeapon } from './bots.js';
 
-const API = './api';
+/**
+ * On passe la route en parametre plutot que dans le chemin : aucune reecriture
+ * d'URL n'est necessaire, donc l'API marche aussi bien derriere Apache que
+ * derriere nginx, et quel que soit le sous-repertoire d'installation.
+ */
+const API = './api/index.php?r=';
 
 /* ----------------------------------------------------------------- API */
 
@@ -21,7 +26,7 @@ export const Api = {
   async call(path, { method = 'GET', body = null } = {}) {
     const headers = { 'Content-Type': 'application/json' };
     if (this.token) headers.Authorization = 'Bearer ' + this.token;
-    const res = await fetch(`${API}/${path}`, {
+    const res = await fetch(API + encodeURIComponent(path), {
       method, headers, body: body ? JSON.stringify(body) : undefined,
     });
     let data;

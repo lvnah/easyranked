@@ -62,8 +62,23 @@ function send(array $payload, int $status = 200): never
     exit;
 }
 
-$path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
-$route = trim(preg_replace('#^.*?/api#', '', $path) ?? '', '/');
+/**
+ * La route peut arriver de deux facons :
+ *   - api/index.php?r=login     -> fonctionne partout, sans reecriture d'URL
+ *   - /api/login                -> necessite mod_rewrite (cf. public/.htaccess)
+ * Le client utilise la premiere forme : beaucoup d'hebergements mutualises
+ * servent PHP derriere nginx, ou .htaccess est purement et simplement ignore.
+ */
+$route = (string) ($_GET['r'] ?? '');
+if ($route === '') {
+    $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+    $route = preg_replace('#^.*?/api#', '', $path) ?? '';
+}
+$route = trim($route, '/');
+if ($route === 'index.php' || str_ends_with($route, '/index.php')) {
+    $route = '';          // appel direct du script, sans parametre de route
+}
+$route = preg_replace('#[^a-z0-9_\-]#i', '', $route) ?? '';
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
 try {
@@ -136,6 +151,11 @@ try {
     }
 } catch (\InvalidArgumentException $e) {
     send(['error' => $e->getMessage()], 422);
+} catch (\RuntimeException $e) {
+    // Erreurs de deploiement (droits sur data/, shared/ absent) : le message est
+    // actionnable et ne divulgue rien de sensible, on le renvoie tel quel.
+    error_log('[api] ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
+    send(['error' => $e->getMessage()], 500);
 } catch (\Throwable $e) {
     error_log('[api] ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
     send(['error' => 'Erreur serveur interne.'], 500);

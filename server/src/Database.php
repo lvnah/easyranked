@@ -17,7 +17,18 @@ final class Database
         }
         $dir = Config::root() . '/data';
         if (!is_dir($dir) && !@mkdir($dir, 0775, true) && !is_dir($dir)) {
-            throw new \RuntimeException('Impossible de creer le dossier data/');
+            throw new \RuntimeException(
+                "Impossible de creer le dossier {$dir}. Cree-le a la main et donne les droits "
+                . "d'ecriture a l'utilisateur du serveur web (chmod 775)."
+            );
+        }
+        if (!is_writable($dir)) {
+            // Cas tres frequent en hebergement mutualise : dossier televerse en
+            // lecture seule. SQLite a besoin d'ecrire le fichier ET son journal.
+            throw new \RuntimeException(
+                "Le dossier {$dir} n'est pas accessible en ecriture. SQLite doit pouvoir y creer "
+                . "la base et son journal : applique chmod 775 (ou 777 si l'hebergeur l'exige)."
+            );
         }
         $file = $dir . '/easyranked.sqlite';
         $fresh = !file_exists($file);
