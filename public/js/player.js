@@ -69,9 +69,10 @@ export class PlayerController {
     this.stepPhase = 0;
 
     this.health = this.balance.maxHealth;
-    this.shield = 0;
+    this.shield = this.balance.shieldMax;
     this.alive = true;
     this.team = 0;
+    this.lastHurtAt = -99;
 
     this.cameraRoll = 0;
     this.cameraKick = new THREE.Vector2();
@@ -103,7 +104,8 @@ export class PlayerController {
   respawn(v) {
     this.teleport(v);
     this.health = this.balance.maxHealth;
-    this.shield = 0;
+    this.shield = this.balance.shieldMax;
+    this.lastHurtAt = -99;
     this.alive = true;
     this.weapon.ammo = this.weapon.cfg.magazine;
     this.weapon.reserve = this.weapon.cfg.reserve;
@@ -413,16 +415,34 @@ export class PlayerController {
     vm.updateProjectionMatrix();
   }
 
-  takeDamage(amount) {
+  takeDamage(amount, now = 0) {
     if (!this.alive) return;
+    this.lastHurtAt = now || this.lastHurtAt;
+    const total = amount;
     if (this.shield > 0) {
       const absorbed = Math.min(this.shield, amount);
       this.shield -= absorbed;
       amount -= absorbed;
     }
     this.health = Math.max(0, this.health - amount);
-    this.shake = Math.max(this.shake, Math.min(0.8, amount / 60));
+    this.shake = Math.max(this.shake, Math.min(0.8, total / 60));
     if (this.health <= 0) this.alive = false;
+  }
+
+  /**
+   * Regeneration locale (mode entrainement) : le bouclier revient avant les
+   * points de vie. En ligne, ces valeurs sont ecrasees par le serveur.
+   */
+  regen(now, dt) {
+    if (!this.alive) return;
+    const b = this.balance;
+    const since = now - this.lastHurtAt;
+    if (since >= b.shieldRegenDelay && this.shield < b.shieldMax) {
+      this.shield = Math.min(b.shieldMax, this.shield + b.shieldRegenRate * dt);
+    }
+    if (since >= b.regenDelay && this.health < b.maxHealth) {
+      this.health = Math.min(b.maxHealth, this.health + b.regenRate * dt);
+    }
   }
 
   snapshotInput(seq) {

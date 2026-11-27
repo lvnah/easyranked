@@ -77,6 +77,7 @@ class PlayerState
         $this->stats   = Config::resolveWeapon($loadout['weapon'] ?? 'mk18', $loadout['attachments'] ?? []);
         $bal           = Config::balance();
         $this->health  = (float) $bal['maxHealth'];
+        $this->shield  = (float) $bal['shieldMax'];
         $this->ammo    = (int) $this->stats['magazine'];
         $this->reserve = (int) $this->stats['reserve'];
         $this->grenades = (int) Config::weapons()['grenades']['count'];
@@ -144,7 +145,7 @@ class PlayerState
         $this->pos = [$spawn[0], $spawn[1], $spawn[2]];
         $this->vel = [0.0, 0.0, 0.0];
         $this->health = (float) $bal['maxHealth'];
-        $this->shield = 0.0;
+        $this->shield = (float) $bal['shieldMax'];
         $this->alive = true;
         $this->stance = 1.0;
         $this->sliding = false;
@@ -191,13 +192,23 @@ class PlayerState
         return ['applied' => $applied, 'killed' => $killed];
     }
 
+    /**
+     * Regeneration : le bouclier revient d'abord (plus vite, apres un delai plus
+     * court), puis les points de vie. Total effectif : maxHealth + shieldMax.
+     */
     public function regen(float $now, float $dt): void
     {
-        $bal = Config::balance();
-        if (!$this->alive || $now - $this->lastDamageAt < $bal['regenDelay']) {
+        if (!$this->alive) {
             return;
         }
-        $this->health = min((float) $bal['maxHealth'], $this->health + $bal['regenRate'] * $dt);
+        $bal = Config::balance();
+        $since = $now - $this->lastDamageAt;
+        if ($since >= $bal['shieldRegenDelay'] && $this->shield < $bal['shieldMax']) {
+            $this->shield = min((float) $bal['shieldMax'], $this->shield + $bal['shieldRegenRate'] * $dt);
+        }
+        if ($since >= $bal['regenDelay']) {
+            $this->health = min((float) $bal['maxHealth'], $this->health + $bal['regenRate'] * $dt);
+        }
     }
 
     public function addKill(bool $headshot): void

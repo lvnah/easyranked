@@ -177,9 +177,14 @@ acquise × 1,22, plafonnée à 9,6 m/s), s'amortit, abaisse la capsule à 1,02 m
 fait franchement plonger la caméra. Vitesses : marche 4,7 · sprint 7,4 ·
 accroupi 2,7 m/s, modulées par la mobilité de l'arme.
 
-**Combat** — 150 PV. Multiplicateur tête ×1,85, membres ×0,82. Six hitboxes
-(tête sphérique, poitrine, ventre, deux bras latéraux, jambes), **identiques
-côté client et côté serveur**.
+**Combat** — 150 points effectifs, répartis en **100 PV + 50 de bouclier** : le
+bouclier absorbe en premier et revient plus vite (3,2 s d'attente, 26/s) que la
+vie (5 s, 22/s), ce qui donne deux barres distinctes dans le HUD comme sur la
+référence. Multiplicateur tête ×1,85, membres ×0,82. Six hitboxes (tête
+sphérique, poitrine, ventre, deux bras latéraux, jambes), **identiques côté
+client et côté serveur**.
+
+Nombre de balles calculé sur les 150 points effectifs :
 
 | Arme | Dégâts torse | Balles | TTK | Tête |
 |---|---|---|---|---|

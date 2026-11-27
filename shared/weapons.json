@@ -1,7 +1,9 @@
 {
   "balance": {
-    "maxHealth": 150,
+    "maxHealth": 100,
     "shieldMax": 50,
+    "shieldRegenDelay": 3.2,
+    "shieldRegenRate": 26,
     "headMultiplier": 1.85,
     "limbMultiplier": 0.82,
     "respawnDelay": 3.2,

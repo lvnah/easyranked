@@ -503,7 +503,9 @@ class Game {
 
     // --- simulation
     this.player.update(dt, t);
-    if (this.local) this.local.tick(t, dt);
+    // Hors ligne, personne d'autre ne regenere le joueur ; en ligne les valeurs
+    // viennent du serveur et sont ecrasees plus bas.
+    if (this.local) { this.player.regen(t, dt); this.local.tick(t, dt); }
     this._updateGrenades(dt);
     this.engine.updateParticles(dt);
 

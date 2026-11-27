@@ -565,7 +565,9 @@ export class Lobby {
     const base = resolveWeapon(this.cfg, d.weapon, {});
     const now = resolveWeapon(this.cfg, d.weapon, this.user.gunsmith ? d.attachments : {});
     const bal = this.cfg.balance;
-    const shots = Math.ceil(bal.maxHealth / now.damage);
+    // Reserve effective : points de vie + bouclier (le bouclier absorbe avant).
+    const pool = bal.maxHealth + bal.shieldMax;
+    const shots = Math.ceil(pool / now.damage);
     const metrics = [
       ['Degats', now.damage, base.damage, 60, false],
       ['Cadence', now.rpm, base.rpm, 1000, false],
@@ -592,7 +594,7 @@ export class Lobby {
         </div>`;
     }).join('')
       + `<div class="gs-ttk">Elimination : <b>${shots} balles</b> au torse
-         &middot; <b>${Math.ceil(bal.maxHealth / (now.damage * bal.headMultiplier))}</b> a la tete
+         &middot; <b>${Math.ceil(pool / (now.damage * bal.headMultiplier))}</b> a la tete
          &middot; TTK <b>${((shots - 1) * now.fireInterval).toFixed(2)} s</b></div>`;
 
     // --- apercu 3D

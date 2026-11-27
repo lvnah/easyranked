@@ -146,8 +146,10 @@ export class LocalBot {
     this.pitch = 0;
     this.stance = 1;
     this.alive = true;
-    this.health = 150;
+    // Les bots ont une reserve unique equivalente au total du joueur
+    // (points de vie + bouclier) : meme nombre de balles pour les abattre.
     this.maxHealth = 150;
+    this.health = this.maxHealth;
     this.shield = 0;
     this.kills = 0;
     this.deaths = 0;
@@ -505,6 +507,8 @@ export class LocalMatch {
       'bot' + index, BOT_NAMES[index % BOT_NAMES.length], team,
       stats, skill, this.nav, this.physics
     );
+    bot.maxHealth = this.weaponsCfg.balance.maxHealth + this.weaponsCfg.balance.shieldMax;
+    bot.health = bot.maxHealth;
     bot.weaponId = weaponId;
     bot.camoId = ['default', 'woodland', 'urban'][index % 3];
     bot.level = 1 + Math.round(skill * 40);
@@ -615,7 +619,7 @@ export class LocalMatch {
     const victim = hit.victim;
     let res;
     if (victim === this.playerEntity) {
-      this.player.takeDamage(dmg);
+      this.player.takeDamage(dmg, now);
       this.playerEntity.health = this.player.health;
       res = { applied: dmg, killed: !this.player.alive };
       if (res.killed) this.playerEntity.deaths++;
@@ -664,7 +668,7 @@ export class LocalMatch {
       const dmg = g.damage * Math.max(0, 1 - (dist / g.radius) ** 1.45);
       let res;
       if (c === this.playerEntity) {
-        this.player.takeDamage(dmg);
+        this.player.takeDamage(dmg, now);
         this.playerEntity.health = this.player.health;
         res = { applied: dmg, killed: !this.player.alive };
         if (res.killed) this.playerEntity.deaths++;
